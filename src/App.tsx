@@ -1,0 +1,29 @@
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import SoftmaxPage from "./pages/SoftmaxPage";
+import QKVPage from "./pages/QKVPage";
+import LLMHome from "./pages/LLMHome";
+import GPTPage from "./pages/GPTPage";
+import BERTPage from "./pages/BERTPage";
+import QwenPage from "./pages/QwenPage";
+import EmbeddingsPage from "./pages/EmbeddingsPage";
+import NotFound from "./pages/NotFound";
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/softmax" element={<SoftmaxPage />} />
+        <Route path="/qkv" element={<QKVPage />} />
+        <Route path="/llm" element={<LLMHome />} />
+        <Route path="/llm/gpt" element={<GPTPage />} />
+        <Route path="/llm/bert" element={<BERTPage />} />
+        <Route path="/llm/qwen" element={<QwenPage />} />
+        <Route path="/llm/embeddings" element={<EmbeddingsPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}

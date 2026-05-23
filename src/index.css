@@ -1,0 +1,144 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "katex/dist/katex.min.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-950 text-ink-100 font-sans antialiased;
+  background-image: radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(124, 92, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 100% 0%,
+      rgba(34, 211, 238, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      700px 500px at 50% 120%,
+      rgba(124, 92, 255, 0.08),
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
+/* Custom slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(124, 92, 255, 0.6),
+    rgba(34, 211, 238, 0.6)
+  );
+  border-radius: 999px;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(124, 92, 255, 0.6),
+    rgba(34, 211, 238, 0.6)
+  );
+  border-radius: 999px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  margin-top: -6px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.35),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 999px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.35),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+/* Recharts tooltips */
+.recharts-default-tooltip {
+  background: rgba(15, 17, 23, 0.95) !important;
+  border: 1px solid rgba(124, 92, 255, 0.35) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+.recharts-tooltip-label,
+.recharts-tooltip-item {
+  color: #e6e8ee !important;
+}
+
+/* KaTeX adjustments for dark mode */
+.katex {
+  color: #e6e8ee;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 92, 255, 0.25);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 92, 255, 0.45);
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl bg-ink-900/60 border border-ink-700/70 backdrop-blur-xl shadow-[0_10px_40px_-20px_rgba(0,0,0,0.6)];
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all
+      bg-ink-800 hover:bg-ink-700 border border-ink-600 text-ink-100;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all
+      bg-accent hover:bg-accent-soft text-white shadow-glow;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+      bg-ink-800 border border-ink-700 text-ink-200;
+  }
+}
