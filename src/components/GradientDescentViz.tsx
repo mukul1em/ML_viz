@@ -27,6 +27,7 @@ export default function GradientDescentViz() {
   const [steps, setSteps] = useState(80);
   const [beta1, setBeta1] = useState(0.9);
   const [beta2, setBeta2] = useState(0.999);
+  const [wd, setWd] = useState(0);
 
   // When loss changes, reset start + lr to that surface's defaults.
   const handleLossChange = (id: LossId) => {
@@ -51,9 +52,10 @@ export default function GradientDescentViz() {
           beta1,
           beta2,
           eps: 1e-8,
+          wd,
         })
       ),
-    [visible, loss, start, lr, steps, beta1, beta2]
+    [visible, loss, start, lr, steps, beta1, beta2, wd]
   );
 
   const toggle = (id: OptimizerId) => {
@@ -100,11 +102,15 @@ export default function GradientDescentViz() {
         steps={steps}
         beta1={beta1}
         beta2={beta2}
+        wd={wd}
         onLr={setLr}
         onSteps={setSteps}
         onBeta1={setBeta1}
         onBeta2={setBeta2}
+        onWd={setWd}
       />
+
+      <DecoupledWDCallout />
 
       <PropertiesGrid />
       <UsageGrid />
@@ -452,24 +458,28 @@ function HyperParamPanel({
   steps,
   beta1,
   beta2,
+  wd,
   onLr,
   onSteps,
   onBeta1,
   onBeta2,
+  onWd,
 }: {
   loss: LossSpec;
   lr: number;
   steps: number;
   beta1: number;
   beta2: number;
+  wd: number;
   onLr: (v: number) => void;
   onSteps: (v: number) => void;
   onBeta1: (v: number) => void;
   onBeta2: (v: number) => void;
+  onWd: (v: number) => void;
 }) {
   const lrMax = loss.id === "rosenbrock" ? 0.01 : 1.5;
   return (
-    <section className="rounded-2xl bg-ink-950/60 border border-ink-800/80 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section className="rounded-2xl bg-ink-950/60 border border-ink-800/80 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
       <ParamSlider
         label="learning rate η"
         value={lr}
@@ -506,6 +516,44 @@ function HyperParamPanel({
         onChange={onBeta2}
         format={(v) => v.toFixed(4)}
       />
+      <ParamSlider
+        label="weight decay λ (AdamW · Lion)"
+        value={wd}
+        min={0}
+        max={0.2}
+        step={0.001}
+        onChange={onWd}
+        format={(v) => v.toFixed(3)}
+      />
+    </section>
+  );
+}
+
+function DecoupledWDCallout() {
+  return (
+    <section className="rounded-2xl bg-ink-950/60 border border-ink-800/80 p-4">
+      <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-3">
+        <span className="text-[10px] uppercase tracking-wider text-violet-300 font-bold shrink-0">
+          AdamW · Lion · decoupled weight decay
+        </span>
+        <p className="text-ink-100 text-sm leading-relaxed">
+          Vanilla Adam absorbs an{" "}
+          <InlineMath math={String.raw`L_2`} /> penalty into the gradient —
+          which is then <em>rescaled</em> by{" "}
+          <InlineMath math={String.raw`1/\sqrt{\hat v}`} />, so per-parameter
+          effective decay varies wildly.{" "}
+          <span className="text-violet-300">AdamW</span> (Loshchilov &amp;
+          Hutter, 2019) decouples the two:{" "}
+          <InlineMath math={String.raw`\theta \leftarrow \theta - \eta\!\left(\tfrac{\hat m}{\sqrt{\hat v}+\varepsilon} + \lambda\theta\right)`} />
+          {" "}— every weight shrinks at the same uniform rate.{" "}
+          <span className="text-rose-300">Lion</span> (Chen et al., 2023) goes
+          further:{" "}
+          <InlineMath math={String.raw`\theta \leftarrow \theta - \eta(\operatorname{sign}(c) + \lambda\theta)`} />
+          {" "}— a single bit per coordinate, the same decoupled WD, and 3–5×
+          the memory savings of Adam. Pull the λ slider above to watch both
+          trajectories curve back toward the origin.
+        </p>
+      </div>
     </section>
   );
 }

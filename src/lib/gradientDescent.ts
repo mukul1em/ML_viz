@@ -103,7 +103,9 @@ export type OptimizerId =
   | "nesterov"
   | "adagrad"
   | "rmsprop"
-  | "adam";
+  | "adam"
+  | "adamw"
+  | "lion";
 
 export interface OptState {
   t: number;
@@ -112,10 +114,12 @@ export interface OptState {
   beta1: number;
   beta2: number;
   eps: number;
+  /** Decoupled weight-decay coefficient λ. Only AdamW / Lion use it. */
+  wd: number;
 }
 
-export function makeState(beta1: number, beta2: number, eps: number): OptState {
-  return { t: 0, m: [0, 0], v: [0, 0], beta1, beta2, eps };
+export function makeState(beta1: number, beta2: number, eps: number, wd = 0): OptState {
+  return { t: 0, m: [0, 0], v: [0, 0], beta1, beta2, eps, wd };
 }
 
 const OPTIMIZERS: Record<OptimizerId, OptimizerSpec> = {
@@ -199,6 +203,46 @@ const OPTIMIZERS: Record<OptimizerId, OptimizerSpec> = {
       ];
     },
   },
+  adamw: {
+    id: "adamw",
+    name: "AdamW",
+    color: "#a855f7",
+    formula: String.raw`\text{Adam step}\;+\;\text{decoupled WD:}\\\theta \leftarrow \theta - \eta\!\left(\frac{\hat m_t}{\sqrt{\hat v_t} + \varepsilon} + \lambda\,\theta\right)`,
+    step: (theta, g, lr, s) => {
+      s.t += 1;
+      s.m[0] = s.beta1 * s.m[0] + (1 - s.beta1) * g[0];
+      s.m[1] = s.beta1 * s.m[1] + (1 - s.beta1) * g[1];
+      s.v[0] = s.beta2 * s.v[0] + (1 - s.beta2) * g[0] * g[0];
+      s.v[1] = s.beta2 * s.v[1] + (1 - s.beta2) * g[1] * g[1];
+      const mh0 = s.m[0] / (1 - Math.pow(s.beta1, s.t));
+      const mh1 = s.m[1] / (1 - Math.pow(s.beta1, s.t));
+      const vh0 = s.v[0] / (1 - Math.pow(s.beta2, s.t));
+      const vh1 = s.v[1] / (1 - Math.pow(s.beta2, s.t));
+      return [
+        theta[0] - lr * (mh0 / (Math.sqrt(vh0) + s.eps) + s.wd * theta[0]),
+        theta[1] - lr * (mh1 / (Math.sqrt(vh1) + s.eps) + s.wd * theta[1]),
+      ];
+    },
+  },
+  lion: {
+    id: "lion",
+    name: "Lion",
+    color: "#fb7185",
+    formula: String.raw`c = \beta_1 m + (1{-}\beta_1) g;\quad \theta \leftarrow \theta - \eta\,(\operatorname{sign}(c) + \lambda\,\theta)\\m \leftarrow \beta_2 m + (1{-}\beta_2) g`,
+    step: (theta, g, lr, s) => {
+      // interpolated direction (uses momentum BEFORE update)
+      const c0 = s.beta1 * s.m[0] + (1 - s.beta1) * g[0];
+      const c1 = s.beta1 * s.m[1] + (1 - s.beta1) * g[1];
+      const updated: Vec2 = [
+        theta[0] - lr * (Math.sign(c0) + s.wd * theta[0]),
+        theta[1] - lr * (Math.sign(c1) + s.wd * theta[1]),
+      ];
+      // momentum update (after parameter update)
+      s.m[0] = s.beta2 * s.m[0] + (1 - s.beta2) * g[0];
+      s.m[1] = s.beta2 * s.m[1] + (1 - s.beta2) * g[1];
+      return updated;
+    },
+  },
 };
 
 export const OPTIMIZER_LIST: OptimizerSpec[] = [
@@ -208,6 +252,8 @@ export const OPTIMIZER_LIST: OptimizerSpec[] = [
   OPTIMIZERS.adagrad,
   OPTIMIZERS.rmsprop,
   OPTIMIZERS.adam,
+  OPTIMIZERS.adamw,
+  OPTIMIZERS.lion,
 ];
 
 /* =============================== runner =============================== */
@@ -220,6 +266,8 @@ export interface RunOptions {
   beta1: number;
   beta2: number;
   eps: number;
+  /** Decoupled weight-decay coefficient. AdamW and Lion use it; others ignore. */
+  wd?: number;
 }
 
 export interface Trajectory {
@@ -231,8 +279,8 @@ export interface Trajectory {
 }
 
 export function runOptimizer(opt: OptimizerSpec, options: RunOptions): Trajectory {
-  const { loss, start, lr, steps, beta1, beta2, eps } = options;
-  const state = makeState(beta1, beta2, eps);
+  const { loss, start, lr, steps, beta1, beta2, eps, wd = 0 } = options;
+  const state = makeState(beta1, beta2, eps, wd);
   let theta: Vec2 = [start[0], start[1]];
   const points: Vec2[] = [[theta[0], theta[1]]];
   const losses: number[] = [loss.f(theta)];

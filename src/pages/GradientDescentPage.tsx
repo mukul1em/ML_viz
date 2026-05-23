@@ -25,7 +25,9 @@ export default function GradientDescentPage() {
               <span className="text-emerald-300">Nesterov</span> ·{" "}
               <span className="text-pink-300">AdaGrad</span> ·{" "}
               <span className="text-amber-300">RMSProp</span> ·{" "}
-              <span className="text-indigo-300">Adam</span> — racing on the same
+              <span className="text-indigo-300">Adam</span> ·{" "}
+              <span className="text-purple-300">AdamW</span> ·{" "}
+              <span className="text-rose-300">Lion</span> — racing on the same
               loss surface.
             </p>
           </div>

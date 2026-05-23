@@ -141,7 +141,15 @@ function FunctionsNav({ pathname }: { pathname: string }) {
       (acc[fn.category] ||= []).push(fn);
       return acc;
     },
-    { activation: [], attention: [], loss: [], optimizer: [], normalization: [] }
+    {
+      activation: [],
+      attention: [],
+      loss: [],
+      optimizer: [],
+      normalization: [],
+      decoding: [],
+      "fine-tuning": [],
+    }
   );
   return (
     <nav className="flex flex-col gap-5 mt-1">

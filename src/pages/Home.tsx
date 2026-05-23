@@ -8,7 +8,15 @@ export default function Home() {
       (acc[fn.category] ||= []).push(fn);
       return acc;
     },
-    { activation: [], attention: [], loss: [], optimizer: [], normalization: [] }
+    {
+      activation: [],
+      attention: [],
+      loss: [],
+      optimizer: [],
+      normalization: [],
+      decoding: [],
+      "fine-tuning": [],
+    }
   );
 
   return (
