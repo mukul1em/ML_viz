@@ -88,11 +88,12 @@ export const models: ModelEntry[] = [
     name: "LLaMA",
     family: "decoder",
     blurb:
-      "Modern decoder-only LM: RMSNorm, SwiGLU, rotary positional embeddings (RoPE), grouped-query attention.",
+      "Meta's open-source decoder-only family. The reference recipe — RMSNorm, RoPE, GQA, SwiGLU, no bias on linears — that the entire modern LLM ecosystem now copies.",
     icon: Cpu,
-    available: false,
-    accent: "from-pink-500/30 to-violet-500/20",
-    tagline: "Open-source decoder-only LM",
+    available: true,
+    path: "/llm/llama",
+    accent: "from-orange-400/30 to-pink-500/20",
+    tagline: "Decoder-only · open weights · no-bias linears",
   },
   {
     slug: "t5",

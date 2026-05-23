@@ -11,6 +11,7 @@ import {
 import { Tex as InlineMath, TexBlock as BlockMath } from "../Tex";
 import {
   qwenComponents,
+  type QwenComponent,
   type QwenComponentId,
 } from "../../data/qwenComponents";
 import {
@@ -31,10 +32,35 @@ interface Props {
   prompt: string;
   config: QwenConfig;
   embedded?: boolean;
+  /**
+   * Optional override for the component-metadata map (used by LLaMA, which
+   * shares the same architectural graph but ships its own taglines). Defaults
+   * to the Qwen metadata.
+   */
+  components?: Record<QwenComponentId, QwenComponent>;
+  /** Optional accent color for the "SIGNATURE" badge. */
+  accentColor?: string;
 }
 
-export default function QwenDetail({ selected, prompt, config, embedded }: Props) {
-  const meta = qwenComponents[selected];
+export default function QwenDetail({
+  selected,
+  prompt,
+  config,
+  embedded,
+  components,
+  accentColor,
+}: Props) {
+  const meta = (components ?? qwenComponents)[selected];
+  const badge = accentColor
+    ? {
+        text: { color: accentColor },
+        wrap: {
+          background: `${accentColor}1f`,
+          border: `1px solid ${accentColor}66`,
+          color: accentColor,
+        },
+      }
+    : null;
   const wrap = embedded
     ? "flex flex-col gap-5"
     : "card p-5 flex flex-col gap-5";
@@ -42,13 +68,23 @@ export default function QwenDetail({ selected, prompt, config, embedded }: Props
   return (
     <div className={wrap}>
       <header className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-violet-300 font-bold">
+        <div
+          className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] font-bold"
+          style={badge ? badge.text : undefined}
+        >
           {meta.signature && (
-            <span className="px-1.5 py-0.5 rounded bg-violet-500/20 border border-violet-400/40 text-violet-200">
+            <span
+              className={
+                badge
+                  ? "px-1.5 py-0.5 rounded"
+                  : "px-1.5 py-0.5 rounded bg-violet-500/20 border border-violet-400/40 text-violet-200"
+              }
+              style={badge ? badge.wrap : undefined}
+            >
               SIGNATURE
             </span>
           )}
-          <span>{meta.group}</span>
+          <span className={badge ? "" : "text-violet-300"}>{meta.group}</span>
         </div>
         <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight leading-tight">
           {meta.full}
