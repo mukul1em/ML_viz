@@ -2,6 +2,10 @@ import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SoftmaxPage from "./pages/SoftmaxPage";
+import SigmoidPage from "./pages/SigmoidPage";
+import ReLUPage from "./pages/ReLUPage";
+import TanhPage from "./pages/TanhPage";
+import CrossEntropyPage from "./pages/CrossEntropyPage";
 import QKVPage from "./pages/QKVPage";
 import LLMHome from "./pages/LLMHome";
 import GPTPage from "./pages/GPTPage";
@@ -16,6 +20,10 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/softmax" element={<SoftmaxPage />} />
+        <Route path="/sigmoid" element={<SigmoidPage />} />
+        <Route path="/relu" element={<ReLUPage />} />
+        <Route path="/tanh" element={<TanhPage />} />
+        <Route path="/cross-entropy" element={<CrossEntropyPage />} />
         <Route path="/qkv" element={<QKVPage />} />
         <Route path="/llm" element={<LLMHome />} />
         <Route path="/llm/gpt" element={<GPTPage />} />
